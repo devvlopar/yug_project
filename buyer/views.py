@@ -12,7 +12,7 @@ def about(request):
 def faqs(request):
     return render(request, 'faqs.html')
 
-def home(request):
+def privacy(request):
     return render(request, 'privacy.html')
 
 def yug(request):
@@ -34,3 +34,6 @@ def del_row(request):
     r1.delete()
 
     return HttpResponse('Deleted!!!')
+
+def register(request):
+    return render(request, 'register.html')
