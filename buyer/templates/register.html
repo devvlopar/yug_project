@@ -1,12 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    
-</body>
-</html>
+{% extends 'header.html' %}
+{% load static %}
+{% block content %}
+
+
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            
+            <div class="modal-body modal-body-sub_agile">
+                <div class="main-mailposi">
+                    <span class="fa fa-envelope-o" aria-hidden="true"></span>
+                </div>
+                <div class="modal_body_left modal_body_left1">
+                    <h3 class="agileinfo_sign">Register</h3>
+                    <p>
+                        Come join the Grocery Shoppy! Let's set up your Account.
+                    </p>
+                    <form action="{% url 'register' %}" method="post">
+                        {% csrf_token %}
+                        <div class="styled-input agile-styled-input-top">
+                            <input type="text" placeholder="First Name" name="first_name" required="">
+                        </div>
+
+                        <div class="styled-input agile-styled-input-top">
+                            <input type="text" placeholder="Last Name" name="last_name" required="">
+                        </div>
+
+                        <div class="styled-input">
+                            <input type="email" placeholder="E-mail" name="email" required="">
+                        </div>
+                        
+                        <div class="styled-input">
+                            <input type="password" placeholder="Password" name="password" id="password1" required="">
+                        </div>
+                        <div class="styled-input">
+                            <input type="password" placeholder="Confirm Password" name="repassword" id="password2" required="">
+                        </div>
+                        <input type="submit" value="Register">
+                    </form>
+                    <p>
+                        <a href="#">By clicking register, I agree to your terms</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <!-- //Modal content-->
+    </div>
+
+
+{% endblock %}

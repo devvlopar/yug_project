@@ -36,4 +36,14 @@ def del_row(request):
     return HttpResponse('Deleted!!!')
 
 def register(request):
-    return render(request, 'register.html')
+    if request.method == 'GET':
+        return render(request, 'register.html')
+    else:
+        print(request.POST)
+        return HttpResponse(str(dict(request.POST)))
+
+# 1. pass& reenter
+# 2. email already
+# 
+# 
+# OTP procees
