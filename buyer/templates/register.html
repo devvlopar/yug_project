@@ -18,16 +18,25 @@
                     </p>
                     <form action="{% url 'register' %}" method="post">
                         {% csrf_token %}
+                        {{msg}}
                         <div class="styled-input agile-styled-input-top">
                             <input type="text" placeholder="First Name" name="first_name" required="">
                         </div>
-
+                        
                         <div class="styled-input agile-styled-input-top">
                             <input type="text" placeholder="Last Name" name="last_name" required="">
                         </div>
-
+                        
                         <div class="styled-input">
+                            {% if message %}
+                            <input type="email" placeholder="E-mail Already Exists" name="email" required="">
+
+                            {% else %}
+
                             <input type="email" placeholder="E-mail" name="email" required="">
+
+                            {% endif %}
+
                         </div>
                         
                         <div class="styled-input">

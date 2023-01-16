@@ -6,7 +6,8 @@ urlpatterns = [
     path('about/', about, name='about'),
     path('faqs/', faqs, name='faqs'),
     path('privacy/', privacy, name='home'),
-    path('register/', register, name='register')
+    path('register/', register, name='register'),
+    path('otp/', otp, name='otp')
     
 ]
 
