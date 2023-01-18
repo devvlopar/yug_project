@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import *
 from django.core.exceptions import ObjectDoesNotExist
@@ -8,7 +8,12 @@ from django.conf import settings
 # Create your views here.
 
 def index(request):
-    return render(request, 'index.html')
+    try:
+        s_email = request.session['email']
+        user_obj = Buyer.objects.get(email = s_email)
+        return render(request, 'index.html', {'user_data' : user_obj})
+    except:
+        return render(request, 'index.html')
 
 def about(request):
     return render(request, 'about.html')
@@ -79,12 +84,33 @@ def otp(request):
             password = user_dict['password']
         )
         return HttpResponse('Ho gya')
-    
     else:
-
         return render(request, 'otp.html', {'msg': 'OTP is wrong Enter again'})
 
 
+def login(request):
+    if request.method == 'POST':
+        try:
+            user_obj = Buyer.objects.get(email = request.POST['email'])
+            if user_obj.password == request.POST['password']:
+                request.session['email'] = user_obj.email
+                return render(request, 'index.html', {'user_data': user_obj})
+            else:
+                return render(request, 'login.html', {'msg': "Password is Wrong!!!"})
+
+        except:
+            return render(request, 'login.html', {'msg': 'Email Does Not Exist!!'})        
+    else:
+        try:
+            request.session['email']
+            return redirect('index')
+        except:
+            return render(request, 'login.html')
+
+
+def logout(request):
+    del request.session['email']
+    return redirect('index')
 
 
 
