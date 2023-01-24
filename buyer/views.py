@@ -5,15 +5,17 @@ from django.core.exceptions import ObjectDoesNotExist
 import random
 from django.core.mail import send_mail
 from django.conf import settings
+from seller.models import *
 # Create your views here.
 
 def index(request):
+    all_products = Product.objects.all()
     try:
         s_email = request.session['email']
         user_obj = Buyer.objects.get(email = s_email)
-        return render(request, 'index.html', {'user_data' : user_obj})
+        return render(request, 'index.html', {'user_data' : user_obj, 'all_products': all_products})
     except:
-        return render(request, 'index.html')
+        return render(request, 'index.html',{'all_products' : all_products})
 
 def about(request):
     return render(request, 'about.html')
@@ -111,6 +113,25 @@ def login(request):
 def logout(request):
     del request.session['email']
     return redirect('index')
+
+def buyer_edit_profile(request):
+    if request.method == 'GET':
+        try:
+            user_data = Buyer.objects.get(email = request.session['email'])
+            return render(request, 'buyer_edit_profile.html', {'user_data': user_data})
+        except:
+            return render(request, 'login.html')
+    else:
+        user_row = Buyer.objects.get(email = request.session['email'])
+        user_row.first_name = request.POST['first_name']
+        user_row.last_name = request.POST['last_name']
+        user_row.address = request.POST['address']
+        user_row.mobile = request.POST['mobile']
+        user_row.pic = request.FILES['pic']
+        user_row.save()
+        
+        user_data = Buyer.objects.get(email = request.session['email'])
+        return render(request, 'buyer_edit_profile.html', {'user_data': user_data})
 
 
 

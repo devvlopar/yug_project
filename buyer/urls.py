@@ -10,6 +10,8 @@ urlpatterns = [
     path('otp/', otp, name='otp'),
     path('login/', login, name="login"),
     path('logout/', logout, name="logout"),
+    path('buyer_edit_profile/', buyer_edit_profile, name="buyer_edit_profile"),
+
 
     
 ]

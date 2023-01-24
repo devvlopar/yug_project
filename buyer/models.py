@@ -9,6 +9,10 @@ class Buyer(models.Model):
     password = models.CharField(max_length=70)
     address = models.TextField(max_length=500)
     mobile = models.CharField(max_length=15)
+    pic = models.FileField(upload_to='buyer_profile', default='sad.jpg')
+    
+    def __str__(self) -> str:
+        return self.email
 
 
 

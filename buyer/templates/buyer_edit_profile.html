@@ -1,0 +1,57 @@
+{% extends 'header.html' %}
+{% load static %}
+{% block content %}
+
+
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            
+            <div class="modal-body modal-body-sub_agile">
+                <div class="main-mailposi">
+                    <span class="fa fa-envelope-o" aria-hidden="true"></span>
+                </div>
+                <div class="modal_body_left modal_body_left1">
+                    <h3 class="agileinfo_sign">Edit Profile</h3>
+                    <p>
+                        Let's Edit your Account.
+                    </p>
+                    <form action="{% url 'buyer_edit_profile' %}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="styled-input agile-styled-input-top">
+                            <input type="text" placeholder="First Name" name="first_name" value="{{user_data.first_name}}" required="">
+                        </div>
+                        
+                        <div class="styled-input agile-styled-input-top">
+                            <input type="text" placeholder="Last Name" name="last_name" value="{{user_data.last_name}}" required="">
+                        </div>
+                        
+                        <div class="styled-input">
+                            <input type="email" placeholder="E-mail" name="email" value="{{user_data.email}}" required="" disabled>
+                        </div>
+                        
+                        
+                        <div class="styled-input">
+                            <input type="text" placeholder="mobile" name="mobile" value="{{user_data.mobile}}" required="">
+                        </div>
+
+                        <div class="styled-input">
+                            <input type="text" placeholder="address" name="address" value="{{user_data.address}}" required="">
+                        </div>
+
+
+                        <div class="styled-input">
+                            <input type="file" placeholder="pic" name="pic"  required="">
+                        </div>
+
+                        <input type="submit" value="Save Changes">
+                    </form>
+                    
+                </div>
+            </div>
+        </div>
+        <!-- //Modal content-->
+    </div>
+
+
+{% endblock %}
