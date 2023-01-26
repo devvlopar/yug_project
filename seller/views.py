@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.conf import settings
 import random
 from django.core.mail import send_mail
-from .models import Seller
+from .models import *
 from django.core.exceptions import ObjectDoesNotExist
 
 # Create your views here.
@@ -14,16 +14,34 @@ def index(request):
         return render(request, 'seller_login.html')
 
 def add_product(request):
-    return render(request, 'add_product.html')
+    seller_data = Seller.objects.get(email = request.session['seller_email'])
+    return render(request, 'add_product.html', {'seller_data': seller_data})
 
-def edit_product(request):
-    return render(request, 'edit_product.html')
+def edit_product(request, pk):
+    pro_obj = Product.objects.get(id = pk)
+    if request.method == 'GET':
+        seller_data = Seller.objects.get(email = request.session['seller_email'])
+        return render(request, 'edit_product.html', {'seller_data': seller_data, 'product_data': pro_obj})
+    else:
+        pro_obj.product_name = request.POST['product_name']
+        pro_obj.des = request.POST['des']
+        pro_obj.price = request.POST['price']
+        pro_obj.pic = request.FILES['pic']
+        pro_obj.save()
+        seller_data = Seller.objects.get(email = request.session['seller_email'])
+        return render(request, 'edit_product.html', {'seller_data': seller_data, 'product_data': pro_obj})
+
+
+
 
 def my_products(request):
-    return render(request, 'my_products.html')
+    seller_data = Seller.objects.get(email = request.session['seller_email'])
+    session_seller_pro = Product.objects.filter(seller = seller_data)
+    return render(request, 'my_products.html', {'seller_data': seller_data, 'user_products': session_seller_pro})
 
 def edit_profile(request):
-    return render(request, 'seller_edit_profile.html')
+    seller_data = Seller.objects.get(email = request.session['seller_email'])
+    return render(request, 'seller_edit_profile.html', {'seller_data': seller_data})
 
 def seller_register(request):
     if request.method == 'GET':
@@ -74,7 +92,7 @@ def seller_login(request):
             user_obj = Seller.objects.get(email = request.POST['email'])
             if user_obj.password == request.POST['password']:
                 request.session['seller_email'] = user_obj.email
-                return render(request, 'view_orders.html', {'user_data': user_obj})
+                return render(request, 'view_orders.html', {'seller_data': user_obj})
             else:
                 return render(request, 'seller_login.html', {'msg': "Password is Wrong!!!"})
 
@@ -89,5 +107,9 @@ def seller_login(request):
 
 
 def seller_logout(request):
-    del request.session['seller_email']
-    return redirect('index')
+    try:
+        del request.session['seller_email']
+        return render(request, 'seller_login.html')
+    except:
+        return render(request, 'seller_login.html')
+

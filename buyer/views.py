@@ -134,7 +134,12 @@ def buyer_edit_profile(request):
         return render(request, 'buyer_edit_profile.html', {'user_data': user_data})
 
 
-
+def add_to_cart(request):
+    try:
+        request.session['email']
+        return HttpResponse('login kiya hai')
+    except:
+        return render(request, 'login.html')
 
 # 1. pass& reenter
 # 2. email already
