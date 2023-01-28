@@ -6,7 +6,15 @@ import random
 from django.core.mail import send_mail
 from django.conf import settings
 from seller.models import *
+
+import razorpay
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponseBadRequest
 # Create your views here.
+
+# authorize razorpay client with API Keys.
+razorpay_client = razorpay.Client(
+	auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET))
 
 def index(request):
     all_products = Product.objects.all()
@@ -96,7 +104,7 @@ def login(request):
             user_obj = Buyer.objects.get(email = request.POST['email'])
             if user_obj.password == request.POST['password']:
                 request.session['email'] = user_obj.email
-                return render(request, 'index.html', {'user_data': user_obj})
+                return redirect('index')
             else:
                 return render(request, 'login.html', {'msg': "Password is Wrong!!!"})
 
@@ -134,12 +142,118 @@ def buyer_edit_profile(request):
         return render(request, 'buyer_edit_profile.html', {'user_data': user_data})
 
 
-def add_to_cart(request):
+def add_to_cart(request, pk):
     try:
-        request.session['email']
-        return HttpResponse('login kiya hai')
+        buyer_obj = Buyer.objects.get(email = request.session['email'])
+        product_obj =  Product.objects.get(id = pk)
+        Cart.objects.create(
+            product = product_obj,
+            buyer = buyer_obj
+        )
+        return redirect('index')
     except:
         return render(request, 'login.html')
+
+
+def cart(request):
+    user_data = Buyer.objects.get(email = request.session['email'])
+    cart_list = Cart.objects.filter(buyer = user_data)
+    total_price = 0
+    for i in cart_list:
+        total_price += i.product.price
+    total_price *= 100
+    currency = 'INR'
+    global amount
+    amount = int(total_price) # Rs. 200
+    
+    razorpay_order = razorpay_client.order.create(dict(amount=amount,
+													currency=currency,
+													payment_capture='0'))
+
+	# order id of newly created order.
+    razorpay_order_id = razorpay_order['id']
+    callback_url = 'paymenthandler/'
+
+	# we need to pass these details to frontend.
+    context = {}
+    context['razorpay_order_id'] = razorpay_order_id
+    context['razorpay_merchant_key'] = settings.RAZOR_KEY_ID
+    context['razorpay_amount'] = amount
+    context['currency'] = currency
+    context['callback_url'] = callback_url
+    context['user_data'] = user_data
+    context['cart_list'] = cart_list
+    context['total_price'] = total_price
+
+    return render(request, 'cart.html', context=context)
+
+
+
+
+
+
+
+
+
+
+
+# we need to csrf_exempt this url as
+# POST request will be made by Razorpay
+# and it won't have the csrf token.
+@csrf_exempt
+def paymenthandler(request):
+
+	# only accept POST request.
+	if request.method == "POST":
+		try:
+		
+			# get the required parameters from post request.
+			payment_id = request.POST.get('razorpay_payment_id', '')
+			razorpay_order_id = request.POST.get('razorpay_order_id', '')
+			signature = request.POST.get('razorpay_signature', '')
+			params_dict = {
+				'razorpay_order_id': razorpay_order_id,
+				'razorpay_payment_id': payment_id,
+				'razorpay_signature': signature
+			}
+
+			# verify the payment signature.
+			result = razorpay_client.utility.verify_payment_signature(
+				params_dict)
+			if result is not None:
+				amount = amount # Rs. 200
+				try:
+
+					# capture the payemt
+					razorpay_client.payment.capture(payment_id, amount)
+
+					# render success page on successful caputre of payment
+					return render(request, 'paymentsuccess.html')
+				except:
+
+					# if there is an error while capturing payment.
+					return render(request, 'paymentfail.html')
+			else:
+
+				# if signature verification fails.
+				return render(request, 'paymentfail.html')
+		except:
+
+			# if we don't find the required parameters in POST data
+			return HttpResponseBadRequest()
+	else:
+	# if other than POST request is made.
+		return HttpResponseBadRequest()
+
+
+
+
+def delete_cart_row(request, pk):
+    del_row = Cart.objects.get(id = pk)
+    del_row.delete()
+    return redirect('cart')
+
+
 
 # 1. pass& reenter
 # 2. email already

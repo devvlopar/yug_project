@@ -11,7 +11,11 @@ urlpatterns = [
     path('login/', login, name="login"),
     path('logout/', logout, name="logout"),
     path('buyer_edit_profile/', buyer_edit_profile, name="buyer_edit_profile"),
-    path('add_to_cart/', add_to_cart, name="add_to_cart")
+    path('add_to_cart/<int:pk>', add_to_cart, name="add_to_cart"),
+    path('cart/', cart, name='cart'),
+    path('delete_cart_row/<int:pk>', delete_cart_row, name='delete_cart_row'),
+    path('cart/paymenthandler/', paymenthandler, name='paymenthandler'),
+
 
 
     

@@ -323,10 +323,10 @@
 
 						{% for i in all_products %}
 
-						<div class="col-md-4 product-men">
+						<div class="col-md-6 product-men">
 							<div class="men-pro-item simpleCart_shelfItem">
 								<div class="men-thumb-item">
-									<img src="{{i.pic.url}}" alt="">
+									<img src="{{i.pic.url}}" width="200px" alt="">
 									<div class="men-cart-pro">
 										<div class="inner-men-cart-pro">
 											<a href="single.html" class="link-product-add-cart">Quick View</a>
@@ -346,7 +346,7 @@
 									<div class="snipcart-details top_brand_home_details item_add single-item hvr-outline-out">
 										
 												
-												<button><a href="{% url 'add_to_cart' %}">Add to Cart</a></button>
+												<button><a href="{% url 'add_to_cart' i.id %}">Add to Cart</a></button>
 											
 									</div>
 
