@@ -156,7 +156,10 @@ def add_to_cart(request, pk):
 
 
 def cart(request):
-    user_data = Buyer.objects.get(email = request.session['email'])
+    s_email = (request.session).get('email')
+    if not s_email:
+        return render(request, 'login.html')
+    user_data = Buyer.objects.get(email = s_email)
     cart_list = Cart.objects.filter(buyer = user_data)
     total_price = 0
     for i in cart_list:
@@ -184,6 +187,7 @@ def cart(request):
     context['user_data'] = user_data
     context['cart_list'] = cart_list
     context['total_price'] = total_price
+    context['rupee_total_price'] = total_price / 100
 
     return render(request, 'cart.html', context=context)
 
@@ -203,47 +207,28 @@ def cart(request):
 @csrf_exempt
 def paymenthandler(request):
 
-	# only accept POST request.
-	if request.method == "POST":
-		try:
-		
-			# get the required parameters from post request.
-			payment_id = request.POST.get('razorpay_payment_id', '')
-			razorpay_order_id = request.POST.get('razorpay_order_id', '')
-			signature = request.POST.get('razorpay_signature', '')
-			params_dict = {
-				'razorpay_order_id': razorpay_order_id,
-				'razorpay_payment_id': payment_id,
-				'razorpay_signature': signature
-			}
-
-			# verify the payment signature.
-			result = razorpay_client.utility.verify_payment_signature(
-				params_dict)
-			if result is not None:
-				amount = amount # Rs. 200
-				try:
-
-					# capture the payemt
-					razorpay_client.payment.capture(payment_id, amount)
-
-					# render success page on successful caputre of payment
-					return render(request, 'paymentsuccess.html')
-				except:
-
-					# if there is an error while capturing payment.
-					return render(request, 'paymentfail.html')
-			else:
-
-				# if signature verification fails.
-				return render(request, 'paymentfail.html')
-		except:
-
-			# if we don't find the required parameters in POST data
-			return HttpResponseBadRequest()
-	else:
-	# if other than POST request is made.
-		return HttpResponseBadRequest()
+    if request.method == "POST":
+        try:
+            payment_id = request.POST.get('razorpay_payment_id', '')
+            razorpay_order_id = request.POST.get('razorpay_order_id', '')
+            signature = request.POST.get('razorpay_signature', '')
+            params_dict = {
+                'razorpay_order_id': razorpay_order_id,
+                'razorpay_payment_id': payment_id,
+                'razorpay_signature': signature
+                }
+            global amount
+            amount = amount
+            try:
+                razorpay_client.payment.capture(payment_id, amount)
+                return render(request, 'paymentsuccess.html')
+            except:
+                return render(request, 'paymentfail.html')
+           
+        except:
+            return HttpResponseBadRequest()
+    else:
+        return HttpResponseBadRequest()
 
 
 

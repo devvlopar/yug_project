@@ -146,5 +146,5 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
-RAZOR_KEY_ID = ''
-RAZOR_KEY_SECRET =  ''
+RAZOR_KEY_ID = 'rzp_test_jFxvNLiOO8wXQd'
+RAZOR_KEY_SECRET =  'Yz6cg7vDdrxVt4NEAsn2tStS'
