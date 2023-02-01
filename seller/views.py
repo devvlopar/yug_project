@@ -6,10 +6,12 @@ from .models import *
 from django.core.exceptions import ObjectDoesNotExist
 
 # Create your views here.
-def index(request):
+def seller_index(request):
     try:
-        seller_data = Seller.objects.get(email= request.session['seller_email'])
-        return render(request, 'view_orders.html', {'seller_data': seller_data})
+        seller_session = Seller.objects.get(email= request.session['seller_email'])
+        #niche ki line ka matlab hai ki aisi rows dedo jinmein products ke seller session user ho
+        all_orders = MyOrders.objects.filter(product__seller = seller_session )
+        return render(request, 'view_orders.html', {'seller_data': seller_session, 'view_orders': all_orders})
     except:
         return render(request, 'seller_login.html')
 
@@ -92,7 +94,7 @@ def seller_login(request):
             user_obj = Seller.objects.get(email = request.POST['email'])
             if user_obj.password == request.POST['password']:
                 request.session['seller_email'] = user_obj.email
-                return render(request, 'view_orders.html', {'seller_data': user_obj})
+                return redirect('seller_index')
             else:
                 return render(request, 'seller_login.html', {'msg': "Password is Wrong!!!"})
 
@@ -101,7 +103,7 @@ def seller_login(request):
     else:
         try:
             request.session['seller_email']
-            return redirect('index')
+            return redirect('seller_index')
         except:
             return render(request, 'seller_login.html')
 
@@ -113,3 +115,8 @@ def seller_logout(request):
     except:
         return render(request, 'seller_login.html')
 
+def change_status(request,pk):
+    row_obj = MyOrders.objects.get(id = pk)
+    row_obj.status = 'dispatched'
+    row_obj.save()
+    return redirect('seller_index')

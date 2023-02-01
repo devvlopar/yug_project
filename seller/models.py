@@ -1,5 +1,9 @@
 from django.db import models
 
+
+
+
+
 # Create your models here.
 
 class Seller(models.Model):
@@ -20,5 +24,21 @@ class Product(models.Model):
     pic = models.FileField(upload_to='products_images', default='sad.jpg')
     seller = models.ForeignKey(Seller, on_delete=models.CASCADE)
 
-    def __str__(self) -> str:
+    def __str__(self):
         return self.product_name
+
+
+class MyOrders(models.Model):
+
+    all_status = [
+        ('pending', 'pending'),
+        ('dispatched', 'dispatched')
+    ]
+
+    buyer = models.ForeignKey(to='buyer.Buyer', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    status = models.CharField(choices= all_status,max_length=50, default='pending')
+
+    def __str__(self):
+        return str(self.id)
+

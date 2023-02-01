@@ -168,6 +168,9 @@ def cart(request):
     currency = 'INR'
     global amount
     amount = int(total_price) # Rs. 200
+    if amount == 0:
+        amount = 100 #because 100 paise barabar ek rupaiya hota hai
+    
     
     razorpay_order = razorpay_client.order.create(dict(amount=amount,
 													currency=currency,
@@ -221,6 +224,11 @@ def paymenthandler(request):
             amount = amount
             try:
                 razorpay_client.payment.capture(payment_id, amount)
+                session_user = Buyer.objects.get(email = request.session['email'])
+                c_objects_list = Cart.objects.filter(buyer = session_user)
+                for i in c_objects_list:
+                    i.delete()
+                
                 return render(request, 'paymentsuccess.html')
             except:
                 return render(request, 'paymentfail.html')
